@@ -4,24 +4,32 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
+import launch.logging
 import os
 
 def generate_launch_description():
+
+    logger = launch.logging.get_logger('my_nav_launch')
+    # === Locate packages ===
     tb3_gazebo_pkg = get_package_share_directory('turtlebot3_gazebo')
     tb3_bringup_pkg = get_package_share_directory('turtlebot3_bringup')
-    tb3_description_pkg = get_package_share_directory('turtlebot3_description')
+    pkg_my_nav = get_package_share_directory('my_nav_pkg')
 
-    # change this to your real map
-    map_file = '/home/himanshu/ros2_ws/src/my_nav_pkg/maps/map.yaml'
+    # === Map and RViz config ===
+    map_file = os.path.join(pkg_my_nav, 'maps', 'map.yaml')
+    rviz_config = os.path.join(pkg_my_nav, 'launch', 'rviz.rviz')
+    logger.info(f"Using map file: {map_file}")
+    logger.info(f"Using RViz config: {rviz_config}")
 
+    # === Launch arguments ===
     declare_use_sim_time = DeclareLaunchArgument('use_sim_time', default_value='true')
-    declare_model = DeclareLaunchArgument('model', default_value='waffle')  # or burger
+    declare_model = DeclareLaunchArgument('model', default_value='waffle', description='TurtleBot3 model type')
 
-    # 1) set env so TB3 launch doesn’t crash
-    set_tb3_model = SetEnvironmentVariable('TURTLEBOT3_MODEL', LaunchConfiguration('model'))
-    set_lds_model = SetEnvironmentVariable('LDS_MODEL', 'LDS-01')
+    # === Set environment variables ===
+    set_tb3_model = SetEnvironmentVariable(name='TURTLEBOT3_MODEL', value=LaunchConfiguration('model'))
+    set_lds_model = SetEnvironmentVariable(name='LDS_MODEL', value='LDS-01')
 
-    # 2) gazebo with turtlebot3 world
+    # === Gazebo world ===
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(tb3_gazebo_pkg, 'launch', 'turtlebot3_world.launch.py')
@@ -29,16 +37,15 @@ def generate_launch_description():
         launch_arguments={'use_sim_time': 'true'}.items()
     )
 
-    # 3) robot state publisher / bringup
+    # === Bringup (robot_state_publisher, sensors, etc.) ===
     robot_state_pub = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(tb3_bringup_pkg, 'launch', 'robot.launch.py')
         ),
-        launch_arguments={
-            'use_sim_time': 'true',
-            'model': LaunchConfiguration('model'),
-        }.items()
+        launch_arguments={'use_sim_time': 'true'}.items()
     )
+
+    # === Map Server ===
     map_server_node = Node(
         package='nav2_map_server',
         executable='map_server',
@@ -46,17 +53,16 @@ def generate_launch_description():
         output='screen',
         parameters=[{'yaml_filename': map_file}]
     )
-    # 4) rviz
-    rviz_config = '/home/himanshu/ros2_ws/src/my_nav_pkg/launch/rviz.rviz'
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', rviz_config],
+
+    # === Static TF (map → odom) ===
+    static_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
+        output='screen'
     )
 
-    # 5) our nodes
+    # === Custom Nodes ===
     astar_node = Node(
         package='my_nav_pkg',
         executable='astar_planner',
@@ -90,21 +96,24 @@ def generate_launch_description():
         output='screen'
     )
 
-    static_tf = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
-        output='screen'
+    # === RViz ===
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
     )
 
+    # === Combine all ===
     return LaunchDescription([
         declare_use_sim_time,
         declare_model,
         set_tb3_model,
         set_lds_model,
-        map_server_node,
         gazebo_launch,
         robot_state_pub,
+        map_server_node,
         static_tf,
         astar_node,
         local_nav_node,

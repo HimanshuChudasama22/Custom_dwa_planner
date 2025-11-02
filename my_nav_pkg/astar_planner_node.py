@@ -10,6 +10,10 @@ from cv_bridge import CvBridge
 import pathlib
 from heapq import heappush, heappop
 import math
+from ament_index_python.packages import get_package_share_directory
+import os
+
+
 
 
 class AStarPlanner(Node):
@@ -17,7 +21,9 @@ class AStarPlanner(Node):
         super().__init__('astar_planner')
         self.get_logger().info("Initializing AStarPlanner node...")
 
-        self.yaml_path = "/home/himanshu/ros2_ws/src/my_nav_pkg/maps/map.yaml"
+        pkg_share = get_package_share_directory('my_nav_pkg')
+        self.yaml_path = os.path.join(pkg_share, 'maps', 'map.yaml')
+
         self.load_map()
 
         self.bridge = CvBridge()
