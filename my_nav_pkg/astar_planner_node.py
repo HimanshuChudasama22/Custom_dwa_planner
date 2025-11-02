@@ -63,7 +63,7 @@ class AStarPlanner(Node):
         self.get_logger().info("Costmap generated.")
 
     def generate_costmap(self, img):
-        GAUSS_SIGMA = 5
+        GAUSS_SIGMA = 2.5
         BASE_FREE_COST = 1.0
         OBSTACLE_COST = 500
         INFLATION_WEIGHT = 500
