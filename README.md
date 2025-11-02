@@ -68,7 +68,8 @@ mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
 
 # Clone repository
-git clone https://github.com/<your_username>/Custom_dwa_planner.git
+cd ~/ros2_ws/src
+git clone https://github.com/HimanshuChudasama22/Custom_dwa_planner.git my_nav_pkg
 
 # Build
 cd ~/ros2_ws
