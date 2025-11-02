@@ -135,7 +135,8 @@ This launch file will:
   - Continuously update the path if you change the goal while the robot is moving.
   (Yes — you can change the goal mid-run, and the robot will immediately replan and reroute!)
 
-<img width="1199" height="884" alt="image" src="https://github.com/user-attachments/assets/b498a772-e5d9-462b-bc9b-c2f567391819" />
+<img width="1204" height="844" alt="image" src="https://github.com/user-attachments/assets/3630f51f-aa53-442c-bbab-50ab4397f86c" />
+
 
 
 ### ⚙️ Behind the Scenes
