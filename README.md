@@ -107,6 +107,9 @@ This launch file will:
   
   The robot will remain idle until a navigation goal is given.
 
+<img width="1858" height="1056" alt="image" src="https://github.com/user-attachments/assets/9281bc85-9102-4253-a9ee-b974eb495a41" />
+
+
 
 ### 🔵 In RViz2:
 
@@ -115,6 +118,8 @@ This launch file will:
   The map may not render due to a known error, but the laser scan outlines the environment clearly.
   
   When you publish a goal, a path will appear as a smooth green line.
+<img width="1199" height="884" alt="image" src="https://github.com/user-attachments/assets/edeb8144-4f13-41e7-9bfa-03c260ee45d8" />
+
 
 
 ### 🕹️ Controlling the Robot
@@ -129,6 +134,9 @@ This launch file will:
   
   - Continuously update the path if you change the goal while the robot is moving.
   (Yes — you can change the goal mid-run, and the robot will immediately replan and reroute!)
+
+<img width="1199" height="884" alt="image" src="https://github.com/user-attachments/assets/b498a772-e5d9-462b-bc9b-c2f567391819" />
+
 
 ### ⚙️ Behind the Scenes
 
